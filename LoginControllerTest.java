@@ -8,6 +8,7 @@ import org.junit.Test;
 import fw.attribute.Attributes;
 import fw.attribute.Messages;
 import fw.request.WebRequest;
+import univelec.controller.auth.LoginController;
 import univelec.domain.User;
 import univelec.util.DBHelper;
 
