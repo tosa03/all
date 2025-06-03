@@ -1,4 +1,4 @@
-package univelec.controller.auth;
+package univelec.auth;
 
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -46,22 +46,24 @@ public class LoginControllerTest {
 
 	@Test //IDとパスワードが正しい（成功ケース）
 	public void testLoginExecute01() {
-		// テスト用のユーザーを事前にDBに入れておく
-		dbHelper.doSQLFile("test/univelec/controller.auth/LoginControllerTest_testLoginController01.sql");
-
+		// テスト用のユーザーをDBに挿入するSQLファイルを実行（事前準備）
+		dbHelper.doSQLFile("test/univelec/auth/LoginControllerTest_testLoginController01.sql");
+		// WebRequestを生成して、ログインフォームから送信されるIDとパスワードを設定
 		WebRequest webRequest = new WebRequest();
 		webRequest.setParameter("id", new String[] { "10001" });
 		webRequest.setParameter("password", new String[] { "testpass1" });
-
+		// リクエスト属性などを格納するAttributesオブジェクトを生成（ユーザー情報などの保存に使用）
 		Attributes attributes = new Attributes();
+		// テスト対象のLoginControllerを生成
 		LoginController controller = new LoginController();
-
+		// 対象のloginExecuteメソッドを呼び出して、実行結果（画面遷移パス）を取得
 		String actual = controller.loginExecute(webRequest, attributes);
-
+		// 戻り値がメニュー画面のパスであることを検証（ログイン成功の証拠）
 		Assertions.assertThat(actual).isEqualTo("/menu/showMenuEntry");
 		//Assertions.assertThat(attributes.getPrincipal()).isNotNull();
 		//Assertions.assertThat((User) attributes.getPrincipal()).isNull();
 		//Assertions.assertThat(attributes.getPrincipal()).isInstanceOf(User.class);
+		// ログイン成功時にはユーザー情報（principal）がnullではないことを検証
 		Object principal = attributes.getPrincipal();
 		Assertions.assertThat(principal).isNotNull();
 
@@ -188,9 +190,9 @@ public class LoginControllerTest {
 
 	@Test
 	public void testLogoutExecute() {
-		// 前処理：ダミーの引数を作る（使わないのでnullでもOK）
-		WebRequest webRequest = new WebRequest(); // ダミー生成（必要に応じてモック）
-		Attributes attributes = new Attributes(); // ダミー生成（必要に応じてモック）
+		// 前処理：テスト用の空のリクエストと属性オブジェクトを作成
+		WebRequest webRequest = new WebRequest();
+		Attributes attributes = new Attributes();
 		// テスト対象のメソッド呼び出し
 		String actual = controller.logoutExecute(webRequest, attributes);
 		// 結果検証
