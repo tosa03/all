@@ -1,0 +1,136 @@
+//frontcontroller
+
+case "/user/insertUserExecute":
+			// ユーザー登録フォームの「登録ボタン」押下後に呼ばれる。入力チェック＆DB登録。
+			nextPath = new UserController().insertUserExecute(webRequest, attributes);
+			break;
+
+
+//usercontroller
+public String showListExecute(WebRequest webRequest, Attributes attributes) {
+		TransactionManager transactionManager = new TransactionManager();
+		try {
+			Connection conn = transactionManager.getConnection();
+			UserService userService = new UserService(conn);
+			List<User> users = userService.searchAll();
+			attributes.setAttribute("users", users);
+			return "userList";
+		} finally {
+			transactionManager.close();
+		}
+	}
+
+
+//userService
+public List<User> searchAll() {
+		List<User> users = new ArrayList<User>();
+		UserDAO userDAO = new UserDAO(conn);
+		List<UserDTO> userDTOs = userDAO.getAll();
+		for (UserDTO dto : userDTOs) {
+			User user = new User();
+
+			user.setId(dto.getId());
+			user.setName(dto.getName());
+			user.setPassword(dto.getPassword());
+			user.setAddress(dto.getAddress());
+			user.setPhone(dto.getPhone());
+			user.setMail(dto.getMail());
+			user.setPrivilege(dto.getPrivilege());
+			users.add(user);
+		}
+		return users;
+	}
+
+//UserDAO
+
+public List<UserDTO> getAll() {
+		List<UserDTO> dtos = new ArrayList<>();
+		try {
+			PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM users ORDER BY id");
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				UserDTO dto = new UserDTO();
+				dto.setId(rs.getInt("id"));
+				dto.setName(rs.getString("name"));
+				dto.setPassword(rs.getString("password"));
+				dto.setAddress(rs.getString("address"));
+				dto.setPhone(rs.getString("phone"));
+				dto.setMail(rs.getString("mail"));
+				dto.setPrivilege(rs.getInt("privilege"));
+				dtos.add(dto);
+			}
+			return dtos;
+		} catch (SQLException e) {
+			throw new DAOException(e);
+		}
+
+
+//userList.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet"
+	href="${pageContext.request.contextPath}/public/univelec.css"
+	type="text/css">
+<title>ユニバ電器</title>
+</head>
+<body>
+	<jsp:include page="/WEB-INF/views/common/header.jsp" />
+	<div class="page_title">ユーザ一覧</div>
+	<hr>
+	<jsp:include page="/WEB-INF/views/common/messages.jsp" />
+	<div class="main">
+		<%-- <table class="query">
+			<tr>
+				<th>ユーザID</th>
+				<th>ユーザ名</th>
+			</tr>
+			<tr>
+				<td><a
+					href="${pageContext.request.contextPath}/fc/user/showUserDetailExecute?id=">1</a></td>
+				<td>データ一郎</td>
+			</tr>
+			<tr>
+				<td><a
+					href="${pageContext.request.contextPath}/fc/user/showUserDetailExecute?id=">2</a></td>
+				<td>ユニバ花子</td>
+			</tr>
+			<tr>
+				<td><a
+					href="${pageContext.request.contextPath}/fc/user/showUserDetailExecute?id=">3</a></td>
+				<td>NTT三郎</td>
+			</tr>
+			<tr>
+				<td><a
+					href="${pageContext.request.contextPath}/fc/user/showUserDetailExecute?id=">4</a></td>
+				<td>駒場四子</td>
+			</tr>
+		</table> --%>
+
+		<table class="query">
+			<tr>
+				<th>ユーザID</th>
+				<th>ユーザ名</th>
+			</tr>
+			<c:forEach var="user" items="${users}">
+				<tr>
+					<td><a
+						href="${pageContext.request.contextPath}/fc/user/showUserDetailExecute?id=${user.id}">
+							${user.id} </a></td>
+					<td>${user.name}</td>
+				</tr>
+			</c:forEach>
+		</table>
+
+		<br> <br> <a
+			href="${pageContext.request.contextPath}/fc/menu/showMenuEntry">メニューへ</a>
+	</div>
+
+</body>
+</html>
+
+
