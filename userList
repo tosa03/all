@@ -14,11 +14,13 @@ public String showListExecute(WebRequest webRequest, Attributes attributes) {
 			UserService userService = new UserService(conn);
 			List<User> users = userService.searchAll();
 			attributes.setAttribute("users", users);
-			return "userList";
+			return "user/userList";
 		} finally {
 			transactionManager.close();
 		}
 	}
+
+}
 
 
 //userService
