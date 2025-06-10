@@ -12,7 +12,7 @@ public String showListExecute(WebRequest webRequest, Attributes attributes) {
 		try {
 			Connection conn = transactionManager.getConnection();
 			UserService userService = new UserService(conn);
-			List<User> users = userService.searchAll();
+			List<User> users = userService.getAll();
 			attributes.setAttribute("users", users);
 			return "user/userList";
 		} finally {
@@ -24,7 +24,7 @@ public String showListExecute(WebRequest webRequest, Attributes attributes) {
 
 
 //userService
-public List<User> searchAll() {
+public List<User> getAll() {
 		List<User> users = new ArrayList<User>();
 		UserDAO userDAO = new UserDAO(conn);
 		List<UserDTO> userDTOs = userDAO.getAll();
