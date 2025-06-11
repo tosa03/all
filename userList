@@ -1,5 +1,8 @@
 //frontcontroller
 
+/*
+		 * ユーザー一覧処理
+		 */
 case "/user/insertUserExecute":
 			// ユーザー登録フォームの「登録ボタン」押下後に呼ばれる。入力チェック＆DB登録。
 			nextPath = new UserController().insertUserExecute(webRequest, attributes);
@@ -7,6 +10,17 @@ case "/user/insertUserExecute":
 
 
 //usercontroller
+/**
+ * ユーザー一覧を取得して画面に表示するための処理を行います。
+ * <p>
+ * UserService を用いてユーザー一覧を取得し、Attributes に格納します。
+ * 処理完了後はユーザー一覧表示画面（user/userList）に遷移します。
+ * </p>
+ *
+ * @param webRequest リクエスト情報を保持するオブジェクト（現在は未使用）
+ * @param attributes ビューに渡す属性（ユーザー一覧など）を格納するオブジェクト
+ * @return ユーザー一覧画面のビュー名（"user/userList"）
+ */
 public String showListExecute(WebRequest webRequest, Attributes attributes) {
 		TransactionManager transactionManager = new TransactionManager();
 		try {
@@ -24,6 +38,16 @@ public String showListExecute(WebRequest webRequest, Attributes attributes) {
 
 
 //userService
+/**
+ * データベースから取得したユーザー情報（UserDTO）を
+ * アプリケーション内で使用するユーザーオブジェクト（User）に変換して取得します。
+ * <p>
+ * UserDAOを使用して全ユーザーのDTOを取得し、それぞれをUserに変換してリストで返します。
+ * </p>
+ *
+ * @return ユーザーオブジェクト（User）のリスト
+ * @throws DAOException UserDAO#getAll() 実行時にデータベースアクセスエラーが発生した場合にスローされます
+ */
 public List<User> getAll() {
 		List<User> users = new ArrayList<User>();
 		UserDAO userDAO = new UserDAO(conn);
@@ -44,7 +68,16 @@ public List<User> getAll() {
 	}
 
 //UserDAO
-
+/**
+ * ユーザー情報をすべて取得するメソッドです。
+ * <p>
+ * データベースの「users」テーブルから全レコードをID順に取得し、
+ * 各レコードを UserDTO オブジェクトにマッピングしてリストとして返します。
+ * </p>
+ *
+ * @return ユーザー情報の一覧（UserDTOのリスト）
+ * @throws DAOException データベースアクセス中に例外が発生した場合にスローされます
+ */
 public List<UserDTO> getAll() {
 		List<UserDTO> dtos = new ArrayList<>();
 		try {
