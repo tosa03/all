@@ -1,4 +1,6 @@
-@Test
+//daoのテスト
+
+@Test //正常系
 		  public void testGetAll01() throws Exception {
 		    // ①前処理
 		    dbHelper.doSQLFile("test/univelec/dao/UserDAOTest_testSelect01.sql");
@@ -6,11 +8,12 @@
 		    List<UserDTO> actual = dao.getAll();
 		    // ③結果の検証（期待値はnullではない、要素数は2、[id:10001、name:"testname1"]、[id:10002、name:"testname2"]）
 		    Assertions.assertThat(actual).isNotNull().hasSize(2)
-		        .extracting("id", "name").containsExactly(
-		            Tuple.tuple(10001, "testname1"), Tuple.tuple(10002, "testname2"));
+		        .extracting("id", "name","password","address","phone","mail","privilege").containsExactly(
+		            Tuple.tuple(10001, "testname1","testpass1","testaddress1","00-1111-1111","test1@test.com",1),
+		            Tuple.tuple(10002, "testname2","testpass2","testaddress2","00-2222-2222","test2@test.com",0));
 		  }
 
-		  @Test
+		  @Test //異常系　データが空の場合
 		  public void testGetAll02() throws Exception {
 		    // ①前処理
 		    dbHelper.doSQLFile("test/univelec/dao/UserDAOTest_testSelect02.sql");
@@ -19,3 +22,59 @@
 		    // ③結果の検証（期待値はnullではない、要素数はなし）
 		    Assertions.assertThat(actual).isNotNull().isEmpty();
 		  }
+		  @Test //異常系　SQL接続エラー
+		  public void testGetAll03() throws Exception {
+		    // ① dbHelperを例外発生用の接続に切り替え（接続失敗・構文ミスを意図的に発生させる）
+		    dbHelper.doSQLFile("test/univelec/dao/UserDAOTest_testSelect03.sql"); // SQL構文エラーなど
+		    try {
+		      // ② 異常な接続でDAOを生成
+		      UserDAO userDAO = new UserDAO(dbHelper.getErrorConnection());
+		      // ③ テスト対象メソッドを呼び出し
+		      userDAO.getAll();
+		      // ④ ここに来たらNG（例外が出なかった）
+		      Assertions.fail("例外が発生しませんでした");
+		    } catch (Exception actual) {
+		      // ⑤ 期待通りDAOExceptionが発生したかを確認
+		      Assertions.assertThat(actual).isExactlyInstanceOf(DAOException.class);
+		    }
+		  }
+
+		  @Test //異常系　nullが入っている場合
+		  public void testGetAll04() throws Exception {
+		    // ①前処理
+		    dbHelper.doSQLFile("test/univelec/dao/UserDAOTest_testSelect04.sql");
+		    // ②テスト対象のメソッドの呼び出しと結果の取得
+		    List<UserDTO> actual = dao.getAll();
+		    // ③結果の検証（期待値はnullではない、要素数は2、[id:10001、name:"testname1"]、[id:10002、name:"testname2"]）
+		    Assertions.assertThat(actual).isNotNull().hasSize(2)
+		        .extracting("id", "name","password","address","phone","mail","privilege").containsExactly(
+		            Tuple.tuple(10001, "testname1","testpass1","","00-1111-1111","test1@test.com",1),
+		            Tuple.tuple(10002, "testname2","","testaddress2","00-2222-2222","test2@test.com",0));
+		  }
+
+
+//serviceのテスト
+@Test //正常系
+	  public void testGetAll01() throws Exception {
+	    // ①前処理
+	    dbHelper.doSQLFile(
+	        "test/univelec/service/UserServiceTest_testSearchUserList01.sql");
+	    // ②テスト対象のメソッドの呼び出しと結果の取得
+	    List<User> actual = service.getAll();
+	    // ③結果の検証（期待値はnullではない、要素数は2、[id:10001、name:"testname1"]、[id:10002、name:"testname2"]）
+	    Assertions.assertThat(actual).isNotNull().hasSize(2)
+	    .extracting("id", "name","password","address","phone","mail","privilege").containsExactly(
+	            Tuple.tuple(10001, "testname1","testpass1","testaddress1","00-1111-1111","test1@test.com",1),
+	            Tuple.tuple(10002, "testname2","testpass2","testaddress2","00-2222-2222","test2@test.com",0));
+	  }
+
+	  @Test //異常系 取得するデータがない場合
+	  public void testGetAll02() throws Exception {
+	    // ①前処理
+	    dbHelper.doSQLFile(
+	        "test/univelec/service/UserServiceTest_testSearchUserList02.sql");
+	    // ②テスト対象のメソッドの呼び出しと結果の取得
+	    List<User> actual = service.getAll();
+	    // ③結果の検証（期待値はnullではない、要素数はなし）
+	    Assertions.assertThat(actual).isNotNull().isEmpty();
+	  }
