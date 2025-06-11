@@ -1,0 +1,21 @@
+@Test
+		  public void testGetAll01() throws Exception {
+		    // ①前処理
+		    dbHelper.doSQLFile("test/univelec/dao/UserDAOTest_testSelect01.sql");
+		    // ②テスト対象のメソッドの呼び出しと結果の取得
+		    List<UserDTO> actual = dao.getAll();
+		    // ③結果の検証（期待値はnullではない、要素数は2、[id:10001、name:"testname1"]、[id:10002、name:"testname2"]）
+		    Assertions.assertThat(actual).isNotNull().hasSize(2)
+		        .extracting("id", "name").containsExactly(
+		            Tuple.tuple(10001, "testname1"), Tuple.tuple(10002, "testname2"));
+		  }
+
+		  @Test
+		  public void testGetAll02() throws Exception {
+		    // ①前処理
+		    dbHelper.doSQLFile("test/univelec/dao/UserDAOTest_testSelect02.sql");
+		    // ②テスト対象のメソッドの呼び出しと結果の取得
+		    List<UserDTO> actual = dao.getAll();
+		    // ③結果の検証（期待値はnullではない、要素数はなし）
+		    Assertions.assertThat(actual).isNotNull().isEmpty();
+		  }
